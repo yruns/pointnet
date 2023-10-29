@@ -17,7 +17,7 @@ def fc_batch(input_dim, output_dim):
 
 class TNet(nn.Module):
     """
-    Input transform module for PointNet
+    Input or Feature transform module for PointNet
     """
     
     def __init__(self, conv_channels, device="cpu"):
@@ -70,3 +70,4 @@ if __name__ == '__main__':
 
     Tnet = TNet(conv_channels=[(3, 64), (64, 128), (128, 1024)])
     y = Tnet(x)
+    print(y.shape)
