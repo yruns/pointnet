@@ -24,16 +24,15 @@ class Args4Shapenet(Args):
         self.adam_epsilon = 1e-8
         self.max_clip_norm = 1.0
 
-        self.gradient_accumulation_steps = 1
-        self.eval_interval = 2000
+        self.gradient_accumulation_steps = 4
+        self.eval_interval = 500
         self.log_interval = 50
 
         self.k = 50
         self.alpha = 0.3   # 正则化力度
 
-
         # Model settings
-        self.points_num = 2500
+        self.points_num = 2048
         self.normal = True
 
 

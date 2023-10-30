@@ -98,7 +98,7 @@ class ShapeNetDataset(Dataset):
         features_num = batch[0][1].shape[1]
 
         seg_types = []
-        inputs = torch.zeros(batch_size, points_num, features_num).long()
+        inputs = torch.zeros(batch_size, points_num, features_num).float()
         targets = torch.zeros(batch_size, points_num).long()
 
         for idx in range(len(batch)):

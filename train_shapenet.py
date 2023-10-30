@@ -100,7 +100,66 @@ def train():
 
             # forward
             logits = model(inputs)  # [-1, n, k]
+            logits = logits.view(-1, args.k)  # [-1, k]
+            targets = targets.view(-1)  # [-1]
 
+            loss = criterion(logits, targets)
+
+            # backward
+            if args.gradient_accumulation_steps > 1:
+                loss = loss / args.gradient_accumulation_steps
+
+            loss.backward()
+            global_step += 1
+
+            if (step + 1) % args.gradient_accumulation_steps == 0:
+                optimizer.step()
+                scheduler.step()
+                optimizer.zero_grad()
+
+            if step % args.log_interval == 0 and step > 0:
+                logger.info("Epoch: {:2d} | Step: {:4d} | Loss: {:.4f}".format(epoch, step, loss.item()))
+
+            if global_step % args.eval_interval == 0 and global_step > 0:
+                logger.info("***** Running evaluation *****")
+                acc = evaluate(model, args, test_dataloader, device)
+                model.train()
+
+                if acc > best_acc:
+                    output_dir = os.path.join(args.checkpoint_path, 'pointnet-{}-{}'.format(epoch, step))
+                    if not os.path.exists(output_dir):
+                        os.makedirs(output_dir)
+                    logger.info("Saving model checkpoint to %s" % output_dir)
+                    torch.save(model.state_dict(), os.path.join(output_dir, 'model.pt'))
+                    args.save_settings(output_dir)
+                    best_acc = acc
+
+                logger.info("Epoch: {:2d} | Step: {:4d} | Test Acc: {:.4f}\n".format(epoch, step, acc))
+                logger.info("Current best acc: {:.4f}".format(best_acc))
+
+
+def evaluate(model, args, test_data_loader, device):
+    model.eval()
+    total_correct = 0
+    total_seen = 0
+    total_class_iou = 0
+    total_instance_iou = 0
+
+    with torch.no_grad():
+        for batch in test_data_loader:
+            seg_type, inputs, targets = batch
+            inputs, targets = inputs.to(device), targets.to(device)
+
+            logits = model(inputs)
+            logits = logits.view(-1, args.k)
+            targets = targets.view(-1)
+
+            pred = logits.max(dim=1)[1]
+            correct = pred.eq(targets).sum().item()
+            total_correct += correct
+            total_seen += len(targets)
+
+    return total_correct / total_seen
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from tnet import TNet
+from models.tnet import TNet
 from utils.tools import conv_batch, fc_batch
 
 
