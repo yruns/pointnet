@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 import json
@@ -80,6 +81,35 @@ class ShapeNetDataset(Dataset):
         seg_classes = {k: np.array(v).astype(np.int32) for k, v in seg_classes.items()}
 
         return metadata, seg_classes
+
+    @staticmethod
+    def collate_fn(batch):
+        """
+        Collate function for data.
+        :param batch:
+
+            Args:
+                batch: batch of data
+
+        :return:  seg_types, inputs, targets
+        """
+        batch_size = len(batch)
+        points_num = batch[0][1].shape[0]
+        features_num = batch[0][1].shape[1]
+
+        seg_types = []
+        inputs = torch.zeros(batch_size, points_num, features_num).long()
+        targets = torch.zeros(batch_size, points_num).long()
+
+        for idx in range(len(batch)):
+            seg_type, coordinates, labels = batch[idx]
+            seg_types.append(seg_type)
+            inputs[idx, :, :] = torch.from_numpy(coordinates)
+            targets[idx, :] = torch.from_numpy(labels)
+
+        inputs = inputs.permute(0, 2, 1).contiguous()
+
+        return seg_types, inputs, targets
 
 
 if __name__ == '__main__':

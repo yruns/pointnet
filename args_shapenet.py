@@ -28,6 +28,7 @@ class Args4Shapenet(Args):
         self.eval_interval = 2000
         self.log_interval = 50
 
+        self.k = 50
         self.alpha = 0.3   # 正则化力度
 
 

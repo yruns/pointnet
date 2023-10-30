@@ -51,6 +51,8 @@ class PointNet(nn.Module):
                 nn.Conv1d(128, k, 1, 1)
             )
 
+        self._init_weights()
+
     def forward(self, x):
         """
         :param x: shape: [-1, d, n] (d=3)
@@ -87,6 +89,20 @@ class PointNet(nn.Module):
 
             logits = logits.permute(0, 2, 1).contiguous()
             return logits  # [-1, n, k]
+
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv1d):
+                nn.init.xavier_uniform_(m.weight.data)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias.data, 0.0)
+            elif isinstance(m, nn.BatchNorm1d):
+                nn.init.constant_(m.weight.data, 1.0)
+                nn.init.constant_(m.bias.data, 0.0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_uniform_(m.weight.data)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias.data, 0.0)
 
 
 if __name__ == '__main__':
