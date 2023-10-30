@@ -1,19 +1,6 @@
 import torch
 import torch.nn as nn
-
-def conv_batch(in_channels, out_channels):
-    return nn.Sequential(
-        nn.Conv1d(in_channels, out_channels, kernel_size=1, stride=1),
-        nn.BatchNorm1d(num_features=out_channels),
-        nn.ReLU()
-    )
-
-def fc_batch(input_dim, output_dim):
-    return nn.Sequential(
-        nn.Linear(input_dim, output_dim),
-        nn.BatchNorm1d(output_dim),
-        nn.ReLU()
-    )
+from utils.tools import conv_batch, fc_batch
 
 class TNet(nn.Module):
     """
@@ -62,7 +49,6 @@ class TNet(nn.Module):
         x = x.view(-1, self.d, self.d)  # [-1, d, d]
 
         return x
-
 
 
 if __name__ == '__main__':

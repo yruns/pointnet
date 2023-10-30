@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
-from tnet import TNet, conv_batch, fc_batch
+from tnet import TNet
+from utils.tools import conv_batch, fc_batch
+
 
 class PointNet(nn.Module):
     """
